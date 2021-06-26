@@ -41,20 +41,15 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
     // map VRF request to raffle
     mapping(bytes32 => uint256) internal randomnessRequestToRaffle;
 
-    /** 
-     *  add a param for NFT escrow contract?
-     TODO: accept chainlink addresses, keyhash and fee as params
-     */
-    constructor()
-        VRFConsumerBase(
-            0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B, // VRF Coordinator
-            0x01BE23585060835E02B77ef475b0Cc51aA1e0709 // LINK Token
-        )
-    {
+    constructor(
+        address _vrfCoordinator,
+        address _linkToken,
+        uint256 _fee,
+        bytes32 _keyHash
+    ) VRFConsumerBase(_vrfCoordinator, _linkToken) {
         owner = msg.sender;
-
-        keyHash = 0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311;
-        fee = 0.1 * 10**18;
+        keyHash = _keyHash;
+        fee = _fee;
     }
 
     // approves the NFT transfer from the owner to this contract
