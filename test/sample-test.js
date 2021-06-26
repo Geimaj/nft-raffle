@@ -1,18 +1,16 @@
 const { expect } = require("chai");
+require('dotenv').config();
+
 
 describe("RaffleStore", function() {
-  it("Should return the new greeting once it's changed", async function() {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+  it("Should deploy and set the owner", async function() {
+    const {VRF_COORDINATOR_ADDRESS, LINK_TOKEN_ADDRESS, CHAINLINK_FEE, CHAINLINK_KEYHASH} = process.env;
+    const RaffleStore = await ethers.getContractFactory("RaffleStore");
+    const raffleStore = await RaffleStore.deploy(VRF_COORDINATOR_ADDRESS, LINK_TOKEN_ADDRESS, CHAINLINK_FEE, CHAINLINK_KEYHASH);
+    await raffleStore.deployed();
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+    const [deployer] = await ethers.getSigners();
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
-    
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
-
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    expect(await raffleStore.owner()).to.equal(deployer.address)
   });
 });
