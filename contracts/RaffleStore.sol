@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
+pragma solidity 0.7.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import "@chainlink/contracts/src/v0.8/dev/VRFConsumerBase.sol";
+import "@chainlink/contracts/src/v0.7/dev/VRFConsumerBase.sol";
 
 /**
  * @title RaffleStore
