@@ -48,22 +48,19 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _fee,
         bytes32 _keyHash
     ) VRFConsumerBase(_vrfCoordinator, _linkToken) {
-        console.log("vrf!!", _vrfCoordinator);
-        console.log("linktoken!!", _linkToken);
-        console.log("fee!!", _fee);
-        console.log("keyhash!!", uint256(_keyHash));
-
         owner = msg.sender;
         keyHash = _keyHash;
         fee = _fee;
     }
 
     // approves the NFT transfer from the owner to this contract
+    // this should be called before createRaffle
     function approveRaffle(address _contractAddress, uint256 _nftId) public {
         IERC721(_contractAddress).approve(address(this), _nftId);
     }
 
     // creates a new raffle
+    // approveRaffle should be called before this
     function createRaffle(
         address _nftContract,
         uint256 _nftId,

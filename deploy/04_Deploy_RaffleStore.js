@@ -13,6 +13,7 @@ module.exports = async ({
   let vrfCoordinatorAddress
   let additionalMessage = ""
 
+  // deploy chainlink deps
   if (chainId == 31337) {
     linkToken = await get('LinkToken')
     VRFCoordinatorMock = await get('VRFCoordinatorMock')
@@ -26,6 +27,7 @@ module.exports = async ({
   const keyHash = networkConfig[chainId]['keyHash']
   const fee = networkConfig[chainId]['fee']
 
+  // deploy raffle store
   const raffleStore = await deploy('RaffleStore', {
     from: deployer,
     args: [vrfCoordinatorAddress, linkTokenAddress, fee, keyHash],
