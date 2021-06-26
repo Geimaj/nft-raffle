@@ -5,6 +5,7 @@ pragma solidity 0.7.0;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@chainlink/contracts/src/v0.7/dev/VRFConsumerBase.sol";
+import "hardhat/console.sol";
 
 /**
  * @title RaffleStore
@@ -47,6 +48,11 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _fee,
         bytes32 _keyHash
     ) VRFConsumerBase(_vrfCoordinator, _linkToken) {
+        console.log("vrf!!", _vrfCoordinator);
+        console.log("linktoken!!", _linkToken);
+        console.log("fee!!", _fee);
+        console.log("keyhash!!", uint256(_keyHash));
+
         owner = msg.sender;
         keyHash = _keyHash;
         fee = _fee;
