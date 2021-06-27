@@ -185,4 +185,37 @@ describe("RaffleStore", function () {
 
   })
 
+  it("Should award NFT to the winner", async () => {
+    const VRFCoordinatorMock = await deployments.get('VRFCoordinatorMock')
+    vrfCoordinatorMock = await ethers.getContractAt('VRFCoordinatorMock', VRFCoordinatorMock.address)
+
+    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
+    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+
+    let transaction = await raffleStore.connect(rafflePlayer)
+      .enterRaffle(0, totalRaffleTickets, {
+        value: ticketPrice.mul(totalRaffleTickets)
+      })
+
+    const tx_receipt = await transaction.wait()
+    const requestId = tx_receipt.events[2].topics[0]
+    const randomness = 5432;
+
+    const fulfullRandomnessCallback = vrfCoordinatorMock.callBackWithRandomness(requestId, randomness, raffleStore.address)
+    
+    await expect(
+      fulfullRandomnessCallback
+    ).to.emit(raffleStore, 'RaffleComplete')
+      .withArgs(0, rafflePlayer.address);
+
+    await expect(
+      fulfullRandomnessCallback
+    ).to.emit(testNft, 'Transfer')
+      .withArgs(raffleStore.address, rafflePlayer.address, nftId);
+
+    await expect(
+      await testNft.ownerOf(nftId)
+    ).to.equal(rafflePlayer.address)
+  })
+
 });
