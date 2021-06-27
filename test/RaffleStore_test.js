@@ -7,10 +7,11 @@ describe("RaffleStore", function() {
   let raffleStore;
   let testNft;
   let deployer; 
+  let raffleOwner;
   
   beforeEach(async () => {
-    await deployments.fixture(['mocks', 'vrf', 'raffleStore', 'nft'])
-    deployer = (await ethers.getSigners())[0];
+    await deployments.fixture(['mocks', 'vrf', 'raffleStore', 'nft']);
+    [deployer, raffleOwner] = await ethers.getSigners()
 
     const RaffleStore = await deployments.get('RaffleStore')
     raffleStore = await ethers.getContractAt('RaffleStore', RaffleStore.address)
@@ -18,7 +19,9 @@ describe("RaffleStore", function() {
     const TestNft = await deployments.get('Nft')
     testNft = await ethers.getContractAt('Nft', TestNft.address)
 
-    await testNft.mint(deployer.address, "1")
+    await testNft.connect(raffleOwner).mint(raffleOwner.address, "1")
+
+    
   })
 
   it("Should store the owner", async function() {
@@ -31,4 +34,16 @@ describe("RaffleStore", function() {
     ).to.be.reverted
   })
 
+  it("Should approve the store to transfer NFT", async function (){
+    await expect(
+      testNft.connect(raffleOwner).approve(raffleStore.address, 1)
+    ).to.emit(testNft, 'Approval')
+    .withArgs(raffleOwner.address, raffleStore.address, 1)
+
+    let approvedAddress = await testNft.getApproved(1);
+
+    await expect(
+      approvedAddress
+    ).to.equal(raffleStore.address)
+  })
 });

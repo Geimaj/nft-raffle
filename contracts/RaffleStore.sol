@@ -53,14 +53,8 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         fee = _fee;
     }
 
-    // approves the NFT transfer from the owner to this contract
-    // this should be called before createRaffle
-    function approveRaffle(address _contractAddress, uint256 _nftId) public {
-        IERC721(_contractAddress).approve(address(this), _nftId);
-    }
-
     // creates a new raffle
-    // approveRaffle should be called before this
+    // nftContract.approve should be called before this
     function createRaffle(
         address _nftContract,
         uint256 _nftId,
