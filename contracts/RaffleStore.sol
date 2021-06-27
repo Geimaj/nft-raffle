@@ -4,6 +4,7 @@ pragma solidity 0.7.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@chainlink/contracts/src/v0.7/dev/VRFConsumerBase.sol";
 import "hardhat/console.sol";
 
@@ -12,6 +13,8 @@ import "hardhat/console.sol";
  * @dev Keeps track of different raffles
  */
 contract RaffleStore is IERC721Receiver, VRFConsumerBase {
+    using SafeMath for uint256;
+
     enum RaffleStatus {
         ONGOING,
         PENDING_COMPLETION,
@@ -24,7 +27,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 nftId;
         uint256 totalPrice;
         uint256 totalTickets;
-        address payable[] tickets;
+        address[] tickets;
         RaffleStatus status;
     }
 
@@ -88,7 +91,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _totalPrice = 1;
 
         // init tickets
-        address payable[] memory _tickets; // = new address payable[](_numTickets);
+        address[] memory _tickets;
         // create raffle
         Raffle memory _raffle = Raffle(
             tx.origin,
@@ -103,7 +106,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         raffles.push(_raffle);
 
         // emit event
-        emit RaffleCreated(raffles.length, tx.origin);
+        emit RaffleCreated(raffles.length - 1, tx.origin);
 
         // return funciton singature to confirm safe transfer
         return
@@ -115,22 +118,25 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
     // enters a user in the draw for a given raffle
     function enterRaffle(uint256 raffleId, uint256 tickets) public payable {
         // validate purchase
+        // require(
+        //     raffles[raffleId].status == RaffleStatus.ONGOING,
+        //     "Raffle no longer active"
+        // );
         require(
-            raffles[raffleId].status == RaffleStatus.ONGOING,
-            "Raffle no longer active"
-        );
-        require(
-            raffles[raffleId].tickets.length + tickets <=
+            tickets.add(raffles[raffleId].tickets.length) <=
                 raffles[raffleId].totalTickets,
             "Not enough tickets available"
         );
-        require(
-            msg.value >=
-                (raffles[raffleId].totalPrice /
-                    raffles[raffleId].totalTickets) *
-                    tickets,
-            "Ticket price not paid"
-        );
+        require(tickets > 0, "Not enough tickets purchased");
+        // require(
+        //     msg.value >=
+        //         tickets.mul(
+        //             raffles[raffleId].totalPrice.div(
+        //                 raffles[raffleId].totalTickets
+        //             )
+        //         ),
+        //     "Ticket price not paid"
+        // );
 
         // add tickets
         for (uint256 i = 0; i < tickets; i++) {
