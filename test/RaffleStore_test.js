@@ -237,5 +237,7 @@ describe("RaffleStore", function () {
 
   })
 
+  // TODO: test mapping randomness to winner
 
+  // TODO: test concurrent raffles with different price and supply
 });

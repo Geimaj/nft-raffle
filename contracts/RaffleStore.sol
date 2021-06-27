@@ -64,16 +64,12 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _numTickets,
         uint256 _totalPrice
     ) public {
-        // TODO: encode these values to bytes
-        // bytes memory raffleData = bytes((_numTickets, _totalPrice));
-        bytes memory raffleData = "replace me";
-
-        // do the nft transfer
+        // transfer the nft from the raffle creator to this contract
         _nftContract.safeTransferFrom(
             msg.sender,
             address(this),
             _nftId,
-            raffleData
+            abi.encode(_numTickets, _totalPrice)
         );
     }
 
@@ -84,11 +80,10 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _tokenId,
         bytes memory data
     ) public override returns (bytes4) {
-        // get the number of tickets and price
-        // TODO: decode these values from the data param
-        // (uint256 _numTickets, uint256 _totalPrice) = data;
-        uint256 _numTickets = 10;
-        uint256 _totalPrice = 1 ether;
+        (uint256 _numTickets, uint256 _totalPrice) = abi.decode(
+            data,
+            (uint256, uint256)
+        );
 
         // init tickets
         address[] memory _tickets;
