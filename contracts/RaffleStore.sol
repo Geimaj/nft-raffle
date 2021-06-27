@@ -56,7 +56,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
     // creates a new raffle
     // nftContract.approve should be called before this
     function createRaffle(
-        address _nftContract,
+        IERC721 _nftContract,
         uint256 _nftId,
         uint256 _numTickets,
         uint256 _totalPrice
@@ -65,8 +65,8 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         // bytes memory raffleData = bytes((_numTickets, _totalPrice));
         bytes memory raffleData = "replace me";
 
-        // do the nft transfer - TODO: wrap in require?
-        IERC721(_nftContract).safeTransferFrom(
+        // do the nft transfer
+        _nftContract.safeTransferFrom(
             msg.sender,
             address(this),
             _nftId,
@@ -76,7 +76,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
 
     // complete raffle creation when receiving ERC721
     function onERC721Received(
-        address operator,
+        address _operator,
         address _from,
         uint256 _tokenId,
         bytes memory data
@@ -91,8 +91,8 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         address payable[] memory _tickets; // = new address payable[](_numTickets);
         // create raffle
         Raffle memory _raffle = Raffle(
+            tx.origin,
             msg.sender,
-            _from,
             _tokenId,
             _totalPrice,
             _numTickets,
@@ -103,7 +103,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         raffles.push(_raffle);
 
         // emit event
-        emit RaffleCreated(raffles.length - 1, msg.sender);
+        emit RaffleCreated(raffles.length, tx.origin);
 
         // return funciton singature to confirm safe transfer
         return

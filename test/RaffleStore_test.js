@@ -46,4 +46,20 @@ describe("RaffleStore", function() {
       approvedAddress
     ).to.equal(raffleStore.address)
   })
+
+
+  it("Should create a new raffle", async function (){
+    await testNft.connect(raffleOwner).approve(raffleStore.address, 1)
+
+    let createRaffleRequest= raffleStore.connect(raffleOwner).createRaffle(testNft.address, 1, 10, 1)
+
+    await expect(
+      createRaffleRequest
+    ).to.emit(testNft, "Transfer").withArgs(raffleOwner.address, raffleStore.address, 1);
+
+    await expect(
+      createRaffleRequest
+    ).to.emit(raffleStore, "RaffleCreated").withArgs(1, raffleOwner.address);
+
+  })
 });
