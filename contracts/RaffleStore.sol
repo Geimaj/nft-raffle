@@ -88,7 +88,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         // TODO: decode these values from the data param
         // (uint256 _numTickets, uint256 _totalPrice) = data;
         uint256 _numTickets = 10;
-        uint256 _totalPrice = 1;
+        uint256 _totalPrice = 1 ether;
 
         // init tickets
         address[] memory _tickets;
@@ -128,15 +128,15 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
             "Not enough tickets available"
         );
         require(tickets > 0, "Not enough tickets purchased");
-        // require(
-        //     msg.value >=
-        //         tickets.mul(
-        //             raffles[raffleId].totalPrice.div(
-        //                 raffles[raffleId].totalTickets
-        //             )
-        //         ),
-        //     "Ticket price not paid"
-        // );
+        require(
+            msg.value >=
+                tickets.mul(
+                    raffles[raffleId].totalPrice.div(
+                        raffles[raffleId].totalTickets
+                    )
+                ),
+            "Ticket price not paid"
+        );
 
         // add tickets
         for (uint256 i = 0; i < tickets; i++) {
