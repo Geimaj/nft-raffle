@@ -3,10 +3,7 @@ console.log("Hello World! You did it! Welcome to Snowpack :D");
 
 import ReactDOM from "react-dom";
 import React from "react";
-
-function App() {
-  return <strong>hi shai</strong>;
-}
+import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>
