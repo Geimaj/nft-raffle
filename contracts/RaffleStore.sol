@@ -117,11 +117,10 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
 
     // enters a user in the draw for a given raffle
     function enterRaffle(uint256 raffleId, uint256 tickets) public payable {
-        // validate purchase
-        // require(
-        //     raffles[raffleId].status == RaffleStatus.ONGOING,
-        //     "Raffle no longer active"
-        // );
+        require(
+            uint256(raffles[raffleId].status) == uint256(RaffleStatus.ONGOING),
+            "Raffle no longer active"
+        );
         require(
             tickets.add(raffles[raffleId].tickets.length) <=
                 raffles[raffleId].totalTickets,

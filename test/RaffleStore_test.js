@@ -103,7 +103,7 @@ describe("RaffleStore", function () {
     
     await expect(
       raffleStore.connect(rafflePlayer).enterRaffle(0, 1)
-    ).to.be.revertedWith('Not enough tickets available')
+    ).to.be.revertedWith('Raffle no longer active')
   })
 
   it("Should check the eth deposit matches the ticket price", async () => {
@@ -139,8 +139,6 @@ describe("RaffleStore", function () {
     ).to.be.revertedWith("Ticket price not paid")
   })
 
-  // TODO: test entering a closed / pending_completion raffle
-
   it("Should choose a winner when the last ticket is purchased", async () => {
     await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
     await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
@@ -170,4 +168,21 @@ describe("RaffleStore", function () {
     ).to.equal(1)
 
   })
+
+  it("Should not sell tickets while the raffle is pending completion", async () => {
+    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
+    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+
+    await raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
+      value: ticketPrice.mul(totalRaffleTickets)
+    })
+
+    await expect(
+      raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
+        value: totalRafflePrice
+      })
+    ).to.be.revertedWith("Raffle no longer active")
+
+  })
+
 });
