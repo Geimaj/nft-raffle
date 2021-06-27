@@ -146,7 +146,6 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         emit TicketsPurchased(raffleId, msg.sender, tickets);
 
         // award prizes if this was the last ticket purchased
-        // TODO: this is a bug because the array is fixed length. Rather check the value of the last element?
         if (
             raffles[raffleId].tickets.length == raffles[raffleId].totalTickets
         ) {

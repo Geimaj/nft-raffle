@@ -141,6 +141,33 @@ describe("RaffleStore", function () {
 
   // TODO: test entering a closed / pending_completion raffle
 
-  // TODO: test winner picked on last ticket
+  it("Should choose a winner when the last ticket is purchased", async () => {
+    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
+    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+    
+    // TODO: check link was sent to vrfCoordinator
+    // const LinkToken = await deployments.get('LinkToken')
+    // linkToken = await ethers.getContractAt('LinkToken', LinkToken.address)
+    // const VRFCoordinatorMock = await deployments.get('VRFCoordinatorMock')
+    // vrfCoordinatorMock = await ethers.getContractAt('VRFCoordinatorMock', VRFCoordinatorMock.address)
 
+    // await expect(
+    //   raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
+    //     value: ticketPrice.mul(totalRaffleTickets)
+    //   })
+    // ).to.changeTokenBalances(
+    //   linkToken,
+    //   [raffleStore, vrfCoordinatorMock],
+    //   [-200, 200]
+    // );
+
+    await raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
+      value: ticketPrice.mul(totalRaffleTickets)
+    })
+
+    await expect(
+      (await raffleStore.raffles(0)).status
+    ).to.equal(1)
+
+  })
 });
