@@ -38,28 +38,33 @@ export function RaffleContractProvider({ children }) {
       Nft.abi,
       signer
     );
+
     setNftContract(nftContract);
 
-    const res = await nftContract
-      .connect(signer)
-      .approve(contract.address, nftId);
-    console.log(res, "resss");
-    return res;
+    try {
+      const res = await nftContract
+        .connect(signer)
+        .approve(contract.address, nftId);
+      return res;
+    } catch (error) {
+      console.log("failed to transfer nft");
+      return false;
+    }
   }
 
   async function createRaffle(nftId, numTickets, totalPrice) {
     console.log(
-      `creating raffle... with nFTcontract ${nftContract}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
+      `creating raffle... with nFTcontract ${nftContract.address}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
     );
     const res = await contract
       .connect(signer)
       .createRaffle(
-        nftContract,
+        nftContract.address,
         ethers.BigNumber.from(nftId),
         ethers.BigNumber.from(numTickets),
         ethers.BigNumber.from(totalPrice)
       );
-    console("createRaffle res:", res);
+    console.log("createRaffle res:", res);
   }
 
   return (
