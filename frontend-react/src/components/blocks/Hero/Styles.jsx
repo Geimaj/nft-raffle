@@ -6,4 +6,8 @@ export const Hero = styled.div`
   font-weight: bold;
 
   padding: 40px 10px;
+
+  h1 {
+    font-size: 40px;
+  }
 `;

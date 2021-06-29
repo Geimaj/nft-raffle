@@ -11,8 +11,6 @@ function WalletStatus() {
 
   return (
     <div className="walletStatus">
-      <CreateRaffleButton />
-
       {signer ? (
         <code>
           Connected to {signer.provider.provider.selectedAddress}{" "}
@@ -28,11 +26,6 @@ function WalletStatus() {
 function ConnectWalletButton() {
   const { connectWallet } = useRaffleContract();
   return <S.Button onClick={connectWallet}>Connect Wallet -{">"}</S.Button>;
-}
-
-function CreateRaffleButton() {
-  const { createRaffle } = useRaffleContract();
-  return <S.Button onClick={createRaffle}>Create Raffle</S.Button>;
 }
 
 function DisconnectWalletButton() {
