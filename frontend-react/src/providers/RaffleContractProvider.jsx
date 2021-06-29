@@ -28,12 +28,15 @@ export function RaffleContractProvider({ children }) {
   }
 
   async function createRaffle(nftContract, nftId, numTickets, totalPrice) {
-    const res = await contract.createRaffle(
-      nftContract,
-      nftId,
-      numTickets,
-      totalPrice
-    );
+    console.log("creating raffle...");
+    const res = await contract
+      .connect(signer)
+      .createRaffle(
+        (nftContract = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"),
+        (nftId = 0),
+        (numTickets = 1),
+        (totalPrice = 20)
+      );
     console("createRaffle res:", res);
   }
 
