@@ -44,7 +44,8 @@ export function RaffleContractProvider({ children }) {
     try {
       const res = await nftContract
         .connect(signer)
-        .approve(contract.address, nftId);
+        .approve(contract.address, ethers.BigNumber.from(nftId));
+      console.log("signenerneern", nftContract.connect(signer));
       return res;
     } catch (error) {
       console.log("failed to transfer nft");
