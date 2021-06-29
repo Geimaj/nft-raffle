@@ -141,6 +141,12 @@ describe("RaffleStore", function () {
         value: ticketPrice
       })
     ).to.be.revertedWith("Ticket price not paid")
+
+    await expect(
+      raffleStore.connect(rafflePlayer).enterRaffle(0, 1, {
+        value: ticketPrice.add(1)
+      })
+    ).to.be.revertedWith("Ticket price not paid")
   })
 
   it("Should choose a winner when the last ticket is purchased", async () => {
