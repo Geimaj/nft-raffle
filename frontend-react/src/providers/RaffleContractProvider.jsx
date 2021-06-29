@@ -31,6 +31,7 @@ export function RaffleContractProvider({ children }) {
     setSigner();
   }
 
+  // Approves transfer from nft owner so that we can alter the nft
   async function approveNftTransfer(nftId) {
     const nftContract = new ethers.Contract(
       NFT_CONTRACT_ADDRESS,
@@ -39,7 +40,11 @@ export function RaffleContractProvider({ children }) {
     );
     setNftContract(nftContract);
 
-    nftContract.connect(signer).approve(contract.address, nftId);
+    const res = await nftContract
+      .connect(signer)
+      .approve(contract.address, nftId);
+    console.log(res, "resss");
+    return res;
   }
 
   async function createRaffle(nftId, numTickets, totalPrice) {
