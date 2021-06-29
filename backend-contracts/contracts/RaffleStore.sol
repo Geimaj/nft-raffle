@@ -64,16 +64,12 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _numTickets,
         uint256 _totalPrice
     ) public {
-        // TODO: encode these values to bytes
-        // bytes memory raffleData = bytes((_numTickets, _totalPrice));
-        bytes memory raffleData = "replace me";
-
-        // do the nft transfer
+        // transfer the nft from the raffle creator to this contract
         _nftContract.safeTransferFrom(
             msg.sender,
             address(this),
             _nftId,
-            raffleData
+            abi.encode(_numTickets, _totalPrice)
         );
     }
 
@@ -84,11 +80,10 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         uint256 _tokenId,
         bytes memory data
     ) public override returns (bytes4) {
-        // get the number of tickets and price
-        // TODO: decode these values from the data param
-        // (uint256 _numTickets, uint256 _totalPrice) = data;
-        uint256 _numTickets = 10;
-        uint256 _totalPrice = 1;
+        (uint256 _numTickets, uint256 _totalPrice) = abi.decode(
+            data,
+            (uint256, uint256)
+        );
 
         // init tickets
         address[] memory _tickets;
@@ -117,26 +112,25 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
 
     // enters a user in the draw for a given raffle
     function enterRaffle(uint256 raffleId, uint256 tickets) public payable {
-        // validate purchase
-        // require(
-        //     raffles[raffleId].status == RaffleStatus.ONGOING,
-        //     "Raffle no longer active"
-        // );
+        require(
+            uint256(raffles[raffleId].status) == uint256(RaffleStatus.ONGOING),
+            "Raffle no longer active"
+        );
         require(
             tickets.add(raffles[raffleId].tickets.length) <=
                 raffles[raffleId].totalTickets,
             "Not enough tickets available"
         );
         require(tickets > 0, "Not enough tickets purchased");
-        // require(
-        //     msg.value >=
-        //         tickets.mul(
-        //             raffles[raffleId].totalPrice.div(
-        //                 raffles[raffleId].totalTickets
-        //             )
-        //         ),
-        //     "Ticket price not paid"
-        // );
+        require(
+            msg.value ==
+                tickets.mul(
+                    raffles[raffleId].totalPrice.div(
+                        raffles[raffleId].totalTickets
+                    )
+                ),
+            "Ticket price not paid"
+        );
 
         // add tickets
         for (uint256 i = 0; i < tickets; i++) {
@@ -146,7 +140,6 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         emit TicketsPurchased(raffleId, msg.sender, tickets);
 
         // award prizes if this was the last ticket purchased
-        // TODO: this is a bug because the array is fixed length. Rather check the value of the last element?
         if (
             raffles[raffleId].tickets.length == raffles[raffleId].totalTickets
         ) {
