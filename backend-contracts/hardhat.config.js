@@ -6,6 +6,7 @@ require("@nomiclabs/hardhat-ethers")
 require("@nomiclabs/hardhat-truffle5")
 require("@nomiclabs/hardhat-etherscan")
 require("hardhat-deploy")
+require("hardhat-gas-reporter");
 require("./tasks/accounts")
 require("./tasks/balance")
 require("./tasks/fund-link")
@@ -93,5 +94,9 @@ module.exports = {
     },
     mocha: {
         timeout: 100000
+    },
+    gasReporter: {
+        currency: 'USD',
+        gasPrice: 21
     }
 }
