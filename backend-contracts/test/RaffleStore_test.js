@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 require('dotenv').config();
-let { networkConfig } = require('../helper-hardhat-config')
-
+let { networkConfig } = require('../helper-hardhat-config');
+const { createRaffle } = require("./helpers");
 
 describe("RaffleStore", function () {
   let raffleStore;
@@ -14,7 +14,7 @@ describe("RaffleStore", function () {
   const totalRafflePrice = ethers.utils.parseUnits('1', "ether");
   const totalRaffleTickets = ethers.BigNumber.from('10');
   const ticketPrice =  ethers.BigNumber.from(totalRafflePrice).div(totalRaffleTickets);
-
+ 
   beforeEach(async () => {
     await deployments.fixture(['mocks', 'vrf', 'raffleStore', 'nft']);
     [deployer, raffleOwner, rafflePlayer] = await ethers.getSigners()
@@ -69,8 +69,7 @@ describe("RaffleStore", function () {
   })
 
   it("Should not sell extra tickets", async function() {
-    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
-    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+   await createRaffle();
 
     await expect(
       raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets.add(1))
@@ -111,8 +110,7 @@ describe("RaffleStore", function () {
   })
 
   it("Should check the eth deposit matches the ticket price", async () => {
-    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
-    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+    await createRaffle();
     
     await expect(
       raffleStore.connect(rafflePlayer).enterRaffle(0, 1)
@@ -150,22 +148,7 @@ describe("RaffleStore", function () {
   })
 
   it("Should choose a winner when the last ticket is purchased", async () => {
-    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
-    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
-    
-    // TODO: check link was sent to vrfCoordinator
-    // const LinkToken = await deployments.get('LinkToken')
-    // linkToken = await ethers.getContractAt('LinkToken', LinkToken.address)
-
-    // await expect(
-    //   raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
-    //     value: ticketPrice.mul(totalRaffleTickets)
-    //   })
-    // ).to.changeTokenBalances(
-    //   linkToken,
-    //   [raffleStore, vrfCoordinatorMock],
-    //   [-200, 200]
-    // );
+    await createRaffle();
 
     await raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
       value: ticketPrice.mul(totalRaffleTickets)
@@ -178,8 +161,7 @@ describe("RaffleStore", function () {
   })
 
   it("Should not sell tickets while the raffle is pending completion", async () => {
-    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
-    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+    await createRaffle();
 
     await raffleStore.connect(rafflePlayer).enterRaffle(0, totalRaffleTickets, {
       value: ticketPrice.mul(totalRaffleTickets)
@@ -194,8 +176,7 @@ describe("RaffleStore", function () {
   })
 
   it("Should award NFT to the winner", async () => {
-    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
-    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+    await createRaffle();
 
     let transaction = await raffleStore.connect(rafflePlayer)
       .enterRaffle(0, totalRaffleTickets, {
@@ -223,10 +204,9 @@ describe("RaffleStore", function () {
     ).to.equal(rafflePlayer.address)
   })
 
-  it("Send ether to raffle creator", async () => {
+  it("Should send ether to raffle creator", async () => {
 
-    await testNft.connect(raffleOwner).approve(raffleStore.address, nftId)
-    await raffleStore.connect(raffleOwner).createRaffle(testNft.address, nftId, totalRaffleTickets, totalRafflePrice);
+    await createRaffle();
 
     let transaction = await raffleStore.connect(rafflePlayer)
       .enterRaffle(0, totalRaffleTickets, {
@@ -242,6 +222,16 @@ describe("RaffleStore", function () {
     ).to.changeEtherBalance(raffleOwner, totalRafflePrice)
 
   })
+
+  it("Should only allow the raffle creator to cancel the raffle", async () => {
+
+  })
+
+
+  it("Should only cancel ongoing raffles", async () => {
+
+  })
+
 
   // TODO: test mapping randomness to winner
 
