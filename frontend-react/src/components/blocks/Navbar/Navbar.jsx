@@ -1,11 +1,11 @@
 import React from "react";
 
-import { useRaffleContract } from "../../../providers/RaffleContractProvider";
+import { useContracts } from "../../../providers/ContractsProvider";
 
 import * as S from "./Styles";
 
 function WalletStatus() {
-  const { signer } = useRaffleContract();
+  const { signer } = useContracts();
 
   console.log("signers", signer);
 
@@ -24,12 +24,12 @@ function WalletStatus() {
 }
 
 function ConnectWalletButton() {
-  const { connectWallet } = useRaffleContract();
+  const { connectWallet } = useContracts();
   return <S.Button onClick={connectWallet}>Connect Wallet -{">"}</S.Button>;
 }
 
 function DisconnectWalletButton() {
-  const { disconnectWallet } = useRaffleContract();
+  const { disconnectWallet } = useContracts();
   return <button onClick={disconnectWallet}>Disconnect Wallet</button>;
 }
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { RaffleContractProvider } from "./providers/RaffleContractProvider";
+import { ContractsProvider } from "./providers/ContractsProvider";
 import Navbar from "./components/blocks/Navbar/Navbar";
 import CreateRaffleForm from "./components/CreateRaffleForm/CreateRaffleForm";
 
@@ -15,9 +15,9 @@ const HomePage = () => (
 );
 
 const App = () => (
-  <RaffleContractProvider>
+  <ContractsProvider>
     <HomePage />
-  </RaffleContractProvider>
+  </ContractsProvider>
 );
 
 export default App;

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-export async function requestSignerAccounts() {
+export async function requestAccount() {
   // await window.ethereum.enable()
   await window.ethereum.request({ method: "eth_requestAccounts" });
 

@@ -2,10 +2,11 @@ import React from "react";
 import { Button } from "../blocks/Navbar/Styles";
 import * as S from "./Styles";
 import { useState } from "react";
-import { useRaffleContract } from "../../providers/RaffleContractProvider";
+import { useContracts } from "../../providers/ContractsProvider";
 
 export default function CreateRaffleForm() {
-  const { createRaffle, approveNftTransfer, signer } = useRaffleContract();
+  const { connectWallet, signer, createRaffle, approveNftTransfer } =
+    useContracts();
 
   const [ticketPrice, setTicketPrice] = useState(0);
   const [numTickets, setNumTickets] = useState(0);
@@ -44,14 +45,20 @@ export default function CreateRaffleForm() {
           <input
             type="number"
             value={nftId}
-            onChange={() => {
-              setNftId(event.target.value);
+            onChange={(e) => {
+              setNftId(e.target.value);
             }}
           />
         </label>
-        <Button type="submit" disabled={nftId == null}>
-          Unlock NFT
-        </Button>
+        {signer ? (
+          <Button type="submit" disabled={nftId == null}>
+            Unlock NFT
+          </Button>
+        ) : (
+          <Button onClick={() => connectWallet()}>
+            Connect your wallet to unlock this NFT
+          </Button>
+        )}
       </form>
     );
   }
