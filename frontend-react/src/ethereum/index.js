@@ -15,3 +15,7 @@ export async function requestAccount() {
 
   return signer;
 }
+
+export function getConnectedAccount() {
+  return new ethers.providers.Web3Provider(window.ethereum).getSigner();
+}

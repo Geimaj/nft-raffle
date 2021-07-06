@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import RaffleStore from "/artifacts/contracts/RaffleStore.sol/RaffleStore.json";
 import Nft from "/artifacts/contracts/Nft.sol/Nft.json";
 
-import { requestAccount } from "../ethereum";
+import { getConnectedAccount, requestAccount } from "../ethereum";
 
 const RAFFLE_CONTRACT_ADDRESS = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
 const NFT_CONTRACT_ADDRESS = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
@@ -111,6 +111,13 @@ function useConnectedSigner() {
   // TODO: On mount, check if the user has already connected their wallet
   useEffect(() => {
     // if (window.etherem...) ...
+
+    // TODO: Setup listener for `accountsChanged` and setConnectedSigner when it occurs
+    // ethereum.on("accountsChanged", (accounts) => {
+    // Handle the new accounts, or lack thereof.
+    // "accounts" will always be an array, but it can be empty.
+    setConnectedSigner(getConnectedAccount());
+    // });
   }, []);
 
   async function connectSigner() {
