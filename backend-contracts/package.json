@@ -5,7 +5,8 @@
   "scripts": {
     "test": "hardhat test",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "start": "echo 'Make sure to run `npx hardhat mint-nft --network localhost --address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (replace that example address with your address)' && hardhat node"
   },
   "license": "MIT",
   "devDependencies": {
