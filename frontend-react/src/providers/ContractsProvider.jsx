@@ -84,6 +84,7 @@ export function ContractsProvider({ children }) {
         raffleContract, // probably want to expose a wrapped version of this
         createRaffle,
         approveNftTransfer,
+        RAFFLE_CONTRACT_ADDRESS,
       }}
     >
       {children}
