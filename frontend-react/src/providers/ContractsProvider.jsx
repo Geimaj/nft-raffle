@@ -56,10 +56,10 @@ export function ContractsProvider({ children }) {
     );
     const res = await raffleContract.createRaffle(
       nftContractAddress,
-        ethers.BigNumber.from(nftId),
-        ethers.BigNumber.from(numTickets),
-        ethers.BigNumber.from(totalPrice)
-      );
+      ethers.BigNumber.from(nftId),
+      ethers.BigNumber.from(numTickets),
+      ethers.BigNumber.from(totalPrice)
+    );
     console.log("createRaffle res:", res);
   }
 
@@ -109,16 +109,48 @@ function useRaffleContract(signer) {
 function useConnectedSigner() {
   const [connectedSigner, setConnectedSigner] = useState();
 
-  // TODO: On mount, check if the user has already connected their wallet
   useEffect(() => {
-    // if (window.etherem...) ...
+    // On mount, check if the user has already connected an account.
+    // If so, we don't need to require them to click the connect button again.
+    async function reconnectSigner() {
+      const possiblyNotConnectedSigner = getConnectedAccount();
+      try {
+        // See if it breaks if we call one of the methods.
+        // If it's a real connected account it won't error, but if it's
+        // not actually connected it will error.
+        const address = await possiblyNotConnectedSigner.getAddress();
 
-    // TODO: Setup listener for `accountsChanged` and setConnectedSigner when it occurs
-    // ethereum.on("accountsChanged", (accounts) => {
-    // Handle the new accounts, or lack thereof.
-    // "accounts" will always be an array, but it can be empty.
-    setConnectedSigner(getConnectedAccount());
-    // });
+        if (address) {
+          // It didn't choke so it's probably a real connected account!
+          setConnectedSigner(possiblyNotConnectedSigner);
+        }
+      } catch {
+        console.log(
+          "reconnectSigner: Looks like you have no accounts already connected!"
+        );
+      }
+    }
+    reconnectSigner();
+
+    // Setup listener for `accountsChanged` and setConnectedSigner when it happens
+    function handleAccountsChanged(accounts) {
+      // Handle the new accounts, or lack thereof.
+      // "accounts" will always be an array, but it can be empty.
+      console.log("useConnectedSigner: accountsChanged!", accounts);
+
+      if (accounts.length == 0) {
+        // The user has disconnected all of their accounts!
+        setConnectedSigner();
+        return;
+      }
+
+      setConnectedSigner(getConnectedAccount());
+    }
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+    return () => {
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+    };
   }, []);
 
   async function connectSigner() {
@@ -147,7 +179,7 @@ function useChainId() {
 
     return () => {
       // cleanup function: remove listener
-      window.ethereum?.off("chainChanged", onChainChanged);
+      window.ethereum.removeListener("chainChanged", onChainChanged);
     };
   }, []);
 
