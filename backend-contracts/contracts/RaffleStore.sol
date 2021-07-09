@@ -123,7 +123,7 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
         );
         require(tickets > 0, "Not enough tickets purchased");
         require(
-            msg.value >=
+            msg.value ==
                 tickets.mul(
                     raffles[raffleId].totalPrice.div(
                         raffles[raffleId].totalTickets

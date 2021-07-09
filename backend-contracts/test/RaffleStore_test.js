@@ -81,7 +81,7 @@ describe("RaffleStore", function () {
         totalRaffleTickets.sub('1'), {
         value: ticketPrice.mul(totalRaffleTickets.add('-1'))
       })
-    ).to.be.satisfy
+    ).to.not.be.reverted
 
     await expect(
       raffleStore.connect(rafflePlayer).enterRaffle(0, ethers.BigNumber.from(2))
@@ -103,7 +103,7 @@ describe("RaffleStore", function () {
       raffleStore.connect(rafflePlayer).enterRaffle(0, 1, {
         value: ticketPrice.toString()
       })
-    ).to.be.satisfy
+    ).to.not.be.reverted
     
     await expect(
       raffleStore.connect(rafflePlayer).enterRaffle(0, 1)
@@ -139,6 +139,12 @@ describe("RaffleStore", function () {
     await expect(
       raffleStore.connect(rafflePlayer).enterRaffle(0, 2, {
         value: ticketPrice
+      })
+    ).to.be.revertedWith("Ticket price not paid")
+
+    await expect(
+      raffleStore.connect(rafflePlayer).enterRaffle(0, 1, {
+        value: ticketPrice.add(1)
       })
     ).to.be.revertedWith("Ticket price not paid")
   })
