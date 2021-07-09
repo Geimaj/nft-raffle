@@ -15,17 +15,28 @@ export function ContractsProvider({ children }) {
   const { connectedSigner, connectSigner } = useConnectedSigner();
 
   const raffleContract = useRaffleContract(connectedSigner);
-  const nftContract = useNftContract(connectedSigner);
 
   const chainId = useChainId();
 
   // Approves transfer from nft owner so that we can alter the nft
-  async function approveNftTransfer(nftId) {
+  async function approveNftTransfer(nftContractAddress, nftId) {
+    if (connectedSigner == null) {
+      throw new Error(
+        "Please connect your wallet before tryring to approve an NFT transfer."
+      );
+    }
+
+    const nftContract = new ethers.Contract(
+      nftContractAddress,
+      Nft.abi,
+      connectedSigner
+    );
+
     try {
-      const res = await nftContract
-        // .connect(signer)
-        .approve(raffleContract.address, ethers.BigNumber.from(nftId));
-      // console.log("signenerneern", nftContract.connect(signer));
+      const res = await nftContract.approve(
+        raffleContract.address,
+        ethers.BigNumber.from(nftId)
+      );
       return res;
     } catch (error) {
       console.log("failed to approve transfer nft");
@@ -34,14 +45,17 @@ export function ContractsProvider({ children }) {
     }
   }
 
-  async function createRaffle(nftId, numTickets, totalPrice) {
+  async function createRaffle(
+    nftContractAddress,
+    nftId,
+    numTickets,
+    totalPrice
+  ) {
     console.log(
-      `creating raffle... with nFTcontract ${nftContract.address}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
+      `creating raffle... with nFTcontract ${nftContractAddress}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
     );
-    const res = await raffleContract
-      // .connect(signer)
-      .createRaffle(
-        nftContract.address,
+    const res = await raffleContract.createRaffle(
+      nftContractAddress,
         ethers.BigNumber.from(nftId),
         ethers.BigNumber.from(numTickets),
         ethers.BigNumber.from(totalPrice)
@@ -90,19 +104,6 @@ function useRaffleContract(signer) {
   }, [signer]);
 
   return raffleContract;
-}
-
-function useNftContract(signer) {
-  const [nftContract, setNftContract] = useState();
-
-  // Connect to the contract with the up-to-date connected signer
-  useEffect(() => {
-    if (signer == null) return;
-
-    setNftContract(new ethers.Contract(NFT_CONTRACT_ADDRESS, Nft.abi, signer));
-  }, [signer]);
-
-  return nftContract;
 }
 
 function useConnectedSigner() {
