@@ -207,7 +207,6 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
             raffle.nftId
         );
 
-        // this uses 207050
         for (uint256 i = 0; i < raffle.tickets.length; i++) {
             payable(raffle.tickets[i]).transfer(
                 raffle.totalPrice.div(raffle.totalTickets)
