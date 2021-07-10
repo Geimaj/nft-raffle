@@ -18,7 +18,8 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
     enum RaffleStatus {
         ONGOING,
         PENDING_COMPLETION,
-        COMPLETE
+        COMPLETE,
+        CANCELLED
     }
 
     struct Raffle {
@@ -189,6 +190,28 @@ contract RaffleStore is IERC721Receiver, VRFConsumerBase {
             randomnessRequestToRaffle[requestId],
             raffle.tickets[winnerIndex]
         );
+    }
+
+    function cancelRaffle(uint256 raffleId) public {
+        Raffle storage raffle = raffles[raffleId];
+        require(
+            msg.sender == raffle.creator,
+            "Only the raffle owner can cancel"
+        );
+        require(raffle.status == RaffleStatus.ONGOING, "Raffle is not ongoing");
+
+        raffle.status = RaffleStatus.CANCELLED;
+        IERC721(raffle.nftContractAddress).transferFrom(
+            address(this),
+            raffle.creator,
+            raffle.nftId
+        );
+
+        for (uint256 i = 0; i < raffle.tickets.length; i++) {
+            payable(raffle.tickets[i]).transfer(
+                raffle.totalPrice.div(raffle.totalTickets)
+            );
+        }
     }
 
     // allows us to claim back our link if we need to

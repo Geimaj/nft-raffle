@@ -29,6 +29,7 @@
     "babel-eslint": "^10.1.0",
     "dotenv": "^8.2.0",
     "eslint": "^7.22.0",
+    "hardhat-gas-reporter": "^1.0.4",
     "transform": "^1.1.2"
   },
   "mocha": {

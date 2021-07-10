@@ -1,21 +1,22 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-require("@nomiclabs/hardhat-waffle");
-require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-truffle5");
-require("@nomiclabs/hardhat-etherscan");
-require("hardhat-deploy");
-require("./tasks/accounts");
-require("./tasks/balance");
-require("./tasks/fund-link");
-require("./tasks/block-number");
-require("./tasks/block-number");
-require("./tasks/random-number-consumer");
-require("./tasks/price-consumer");
-require("./tasks/api-consumer");
-require("./tasks/mint-nft");
-require("./tasks/fund-eth");
+require("@nomiclabs/hardhat-waffle")
+require("@nomiclabs/hardhat-ethers")
+require("@nomiclabs/hardhat-truffle5")
+require("@nomiclabs/hardhat-etherscan")
+require("hardhat-deploy")
+require("hardhat-gas-reporter");
+require("./tasks/accounts")
+require("./tasks/balance")
+require("./tasks/fund-link")
+require("./tasks/block-number")
+require("./tasks/block-number")
+require("./tasks/random-number-consumer")
+require("./tasks/price-consumer")
+require("./tasks/api-consumer")
+require("./tasks/mint-nft")
+require("./tasks/fund-eth")
 
 require("dotenv").config();
 
@@ -99,4 +100,8 @@ module.exports = {
   mocha: {
     timeout: 100000,
   },
+  gasReporter: {
+      currency: 'USD',
+      gasPrice: 21
+  }
 };
