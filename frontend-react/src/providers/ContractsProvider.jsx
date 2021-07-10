@@ -54,13 +54,12 @@ export function ContractsProvider({ children }) {
     console.log(
       `creating raffle... with nFTcontract ${nftContractAddress}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
     );
-    const res = await raffleContract.createRaffle(
+    return raffleContract.createRaffle(
       nftContractAddress,
       ethers.BigNumber.from(nftId),
       ethers.BigNumber.from(numTickets),
       ethers.BigNumber.from(totalPrice)
     );
-    console.log("createRaffle res:", res);
   }
 
   //   return (

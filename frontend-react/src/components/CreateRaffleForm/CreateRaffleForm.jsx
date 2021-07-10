@@ -72,14 +72,21 @@ export default function CreateRaffleForm() {
     checkApproval();
   }, [nftContract, nftId]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    createRaffle(
+
+    // TODO: Capture result here, set raffleStatus to "creating"
+    // await result.wait()
+    //
+    const result = await createRaffle(
       nftContractAddress,
       nftId,
       numTickets,
       ticketPrice * numTickets
     );
+    console.log("waiting for raffle creation to be confirmed");
+    await result.wait();
+    console.log("Raffle creation is confirmed!!");
   };
 
   async function handleUnlockNft(e) {
@@ -157,6 +164,7 @@ function RaffleForm({
           setNftContractAddress={setNftContractAddress}
           nftId={nftId}
           setNftId={setNftId}
+          unlockStatus={unlockStatus}
         />
         {unlockStatus === "loading" && <h3>? Nft lock status loading...</h3>}
         {unlockStatus === "locked" && <h3>🔒 Nft locked</h3>}
@@ -222,6 +230,7 @@ function UnlockNftForm({
   setNftContractAddress,
   nftId,
   setNftId,
+  unlockStatus,
 }) {
   const { connectWallet, signer } = useContracts();
 
@@ -252,7 +261,10 @@ function UnlockNftForm({
       </div>
 
       {signer ? (
-        <Button type="submit" disabled={nftId == null}>
+        <Button
+          type="submit"
+          disabled={unlockStatus !== "locked" || nftId == null}
+        >
           Unlock NFT
         </Button>
       ) : (
