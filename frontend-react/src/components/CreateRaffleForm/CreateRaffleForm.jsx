@@ -3,6 +3,7 @@ import { Button } from "../blocks/Navbar/Styles";
 import * as S from "./Styles";
 import { useState } from "react";
 import { useContracts } from "../../providers/ContractsProvider";
+import NftSelector from "./NftSelector/NftSelector";
 
 export default function CreateRaffleForm() {
   const { connectWallet, signer, createRaffle, approveNftTransfer } =
@@ -40,16 +41,6 @@ export default function CreateRaffleForm() {
   function UnlockNftForm() {
     return (
       <form onSubmit={handleUnlockNft}>
-        <label>
-          NFT id:
-          <input
-            type="number"
-            value={nftId}
-            onChange={(e) => {
-              setNftId(e.target.value);
-            }}
-          />
-        </label>
         {signer ? (
           <Button type="submit" disabled={nftId == null}>
             Unlock NFT
@@ -88,16 +79,6 @@ export default function CreateRaffleForm() {
           />
         </label>
 
-        <label>
-          NFT id:
-          <input
-            type="number"
-            value={nftId}
-            onChange={() => {
-              setNftId(event.target.value);
-            }}
-          />
-        </label>
         <Button type="submit" value="Create Raffle">
           Create Raffle
         </Button>
@@ -116,6 +97,8 @@ export default function CreateRaffleForm() {
   return (
     <S.Wrapper>
       <h2>First, let’s unlock the NFT you want to use for this raffle</h2>
+      <NftSelector onNftSelected={(contract, id) => setNftId(id)} />
+
       <RaffleForm></RaffleForm>
     </S.Wrapper>
   );
