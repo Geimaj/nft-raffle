@@ -5,6 +5,7 @@ import Navbar from "./components/blocks/Navbar/Navbar";
 import CreateRaffleForm from "./components/CreateRaffleForm/CreateRaffleForm";
 
 import Hero from "./components/blocks/Hero/Hero";
+import RaffleList from "./components/RaffleList/RaffleList";
 
 const HomePage = () => (
   <div>
@@ -16,6 +17,7 @@ const HomePage = () => (
 
 const App = () => (
   <ContractsProvider>
+    <RaffleList />
     <HomePage />
   </ContractsProvider>
 );
