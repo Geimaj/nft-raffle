@@ -16,6 +16,12 @@ export async function requestAccount() {
   return signer;
 }
 
+// Note that what this returns may not be a properly connected signer
+// See how we test to make sure it is in `src/providers/ContractsProvider`
 export function getConnectedAccount() {
-  return new ethers.providers.Web3Provider(window.ethereum).getSigner();
+  const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner();
+
+  console.log("getConnectedAccount: signer", signer);
+
+  return signer;
 }

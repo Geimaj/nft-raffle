@@ -15,17 +15,28 @@ export function ContractsProvider({ children }) {
   const { connectedSigner, connectSigner } = useConnectedSigner();
 
   const raffleContract = useRaffleContract(connectedSigner);
-  const nftContract = useNftContract(connectedSigner);
 
   const chainId = useChainId();
 
   // Approves transfer from nft owner so that we can alter the nft
-  async function approveNftTransfer(nftId) {
+  async function approveNftTransfer(nftContractAddress, nftId) {
+    if (connectedSigner == null) {
+      throw new Error(
+        "Please connect your wallet before tryring to approve an NFT transfer."
+      );
+    }
+
+    const nftContract = new ethers.Contract(
+      nftContractAddress,
+      Nft.abi,
+      connectedSigner
+    );
+
     try {
-      const res = await nftContract
-        // .connect(signer)
-        .approve(raffleContract.address, ethers.BigNumber.from(nftId));
-      // console.log("signenerneern", nftContract.connect(signer));
+      const res = await nftContract.approve(
+        raffleContract.address,
+        ethers.BigNumber.from(nftId)
+      );
       return res;
     } catch (error) {
       console.log("failed to approve transfer nft");
@@ -34,19 +45,21 @@ export function ContractsProvider({ children }) {
     }
   }
 
-  async function createRaffle(nftId, numTickets, totalPrice) {
+  async function createRaffle(
+    nftContractAddress,
+    nftId,
+    numTickets,
+    totalPrice
+  ) {
     console.log(
-      `creating raffle... with nFTcontract ${nftContract.address}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
+      `creating raffle... with nFTcontract ${nftContractAddress}, NFTId: ${nftId}, num tickets: ${numTickets}, totalPrice: ${totalPrice}`
     );
-    const res = await raffleContract
-      // .connect(signer)
-      .createRaffle(
-        nftContract.address,
-        ethers.BigNumber.from(nftId),
-        ethers.BigNumber.from(numTickets),
-        ethers.BigNumber.from(totalPrice)
-      );
-    console.log("createRaffle res:", res);
+    return raffleContract.createRaffle(
+      nftContractAddress,
+      ethers.BigNumber.from(nftId),
+      ethers.BigNumber.from(numTickets),
+      ethers.BigNumber.from(totalPrice)
+    );
   }
 
   //   return (
@@ -70,6 +83,7 @@ export function ContractsProvider({ children }) {
         raffleContract, // probably want to expose a wrapped version of this
         createRaffle,
         approveNftTransfer,
+        RAFFLE_CONTRACT_ADDRESS,
       }}
     >
       {children}
@@ -92,32 +106,51 @@ function useRaffleContract(signer) {
   return raffleContract;
 }
 
-function useNftContract(signer) {
-  const [nftContract, setNftContract] = useState();
-
-  // Connect to the contract with the up-to-date connected signer
-  useEffect(() => {
-    if (signer == null) return;
-
-    setNftContract(new ethers.Contract(NFT_CONTRACT_ADDRESS, Nft.abi, signer));
-  }, [signer]);
-
-  return nftContract;
-}
-
 function useConnectedSigner() {
   const [connectedSigner, setConnectedSigner] = useState();
 
-  // TODO: On mount, check if the user has already connected their wallet
   useEffect(() => {
-    // if (window.etherem...) ...
+    // On mount, check if the user has already connected an account.
+    // If so, we don't need to require them to click the connect button again.
+    async function reconnectSigner() {
+      const possiblyNotConnectedSigner = getConnectedAccount();
+      try {
+        // See if it breaks if we call one of the methods.
+        // If it's a real connected account it won't error, but if it's
+        // not actually connected it will error.
+        const address = await possiblyNotConnectedSigner.getAddress();
 
-    // TODO: Setup listener for `accountsChanged` and setConnectedSigner when it occurs
-    // ethereum.on("accountsChanged", (accounts) => {
-    // Handle the new accounts, or lack thereof.
-    // "accounts" will always be an array, but it can be empty.
-    setConnectedSigner(getConnectedAccount());
-    // });
+        if (address) {
+          // It didn't choke so it's probably a real connected account!
+          setConnectedSigner(possiblyNotConnectedSigner);
+        }
+      } catch {
+        console.log(
+          "reconnectSigner: Looks like you have no accounts already connected!"
+        );
+      }
+    }
+    reconnectSigner();
+
+    // Setup listener for `accountsChanged` and setConnectedSigner when it happens
+    function handleAccountsChanged(accounts) {
+      // Handle the new accounts, or lack thereof.
+      // "accounts" will always be an array, but it can be empty.
+      console.log("useConnectedSigner: accountsChanged!", accounts);
+
+      if (accounts.length == 0) {
+        // The user has disconnected all of their accounts!
+        setConnectedSigner();
+        return;
+      }
+
+      setConnectedSigner(getConnectedAccount());
+    }
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+    return () => {
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+    };
   }, []);
 
   async function connectSigner() {
@@ -146,7 +179,7 @@ function useChainId() {
 
     return () => {
       // cleanup function: remove listener
-      window.ethereum?.off("chainChanged", onChainChanged);
+      window.ethereum.removeListener("chainChanged", onChainChanged);
     };
   }, []);
 
